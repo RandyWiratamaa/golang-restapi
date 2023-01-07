@@ -1,8 +1,6 @@
 package main
 
 import (
-	"context"
-	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -11,42 +9,17 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func returnAllProducts(w http.ResponseWriter, r *http.Request) {
-	var products Products
-	var arr_product []Products
-	var response Response
+func index(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprint(w, "Rest API menggunakan Golang By Randy Wiratama")
+}
 
-	db := connect()
-	defer db.Close()
-
-	ctx := context.Background()
-	query := "SELECT id, name, image, price FROM products"
-
-	rows, err := db.QueryContext(ctx, query)
-	if err != nil {
-		log.Print(err)
-	}
-	defer rows.Close()
-	for rows.Next() {
-		if err := rows.Scan(&products.Id, &products.Name, &products.Image, &products.Price); err != nil {
-			log.Fatal(err.Error())
-		} else {
-			arr_product = append(arr_product, products)
-		}
-	}
-	response.Status = 1
-	response.Message = "Success"
-	response.Data = arr_product
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(response)
-
+func handleRequest() {
+	router := mux.NewRouter()
+	router.HandleFunc("/", index)
+	fmt.Println("Connected to Port 8080")
+	log.Fatal(http.ListenAndServe(":8080", router))
 }
 
 func main() {
-	router := mux.NewRouter()
-	router.HandleFunc("/getProducts", returnAllProducts).Methods("GET")
-	http.Handle("/", router)
-	fmt.Println("Connected to Port 1234")
-	log.Fatal(http.ListenAndServe(":1234", router))
+	handleRequest()
 }
